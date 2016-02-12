@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+###################
+# bak v0.1.0
+#
+# @author RuneImp <runeimp@gmail.com>
+# @licenses http://opensource.org/licenses/MIT
+#
+###
+# ChangeLog:
+# ----------
+# 2016-02-04  0.1.0      Initial script creation
+#
+# ToDo:
+# -----
+# * Create help system
+#
+
+#
+# Constants
+#
+APP_CLI="bak"
+APP_NAME="Bak"
+APP_VERSION="0.1.0"
+APP_LABEL="$APP_NAME v$APP_VERSION"
+DEFAULT_EXTENSION='.bak'
+
+#
+# String Vars
+#
+backup_file=''
+extension='.bak'
+source_file=''
+
+#
+# Declared Vars
+#
+declare -a file_list
+declare -i dry_run=1
+declare -i force_backup=1
+declare -i list_length=0
+declare -i overwrite_newer=1
+
+#
+# Functions
+#
+backup_file()
+{
+	local file="$1"
+	local extension="$DEFAULT_EXTENSION"
+	if [[ ! -z "$2" ]]; then
+		extension="$2"
+	fi
+	# echo "cp $(echo ${file}{,$extension})"
+	cp "$file"{,$extension}
+}
+
+std_err()
+{
+	echo "$1" 1>&2
+}
+
+if [[ $# = 0 ]]; then
+	echo "$APP_NAME expects at least one filename/path to rename to *.bak"
+	exit 1
+fi
+
+until [[ $# = 0 ]]; do
+	case "$1" in
+	-e | --extension)
+		extension="$2"
+		shift
+		;;
+	-f | --force)
+		force_backup=0
+		;;
+	-n | --newer)
+		overwrite_newer=0
+		;;
+	-t | --dry-run | --test-run)
+		dry_run=0
+		;;
+	-v | --version)
+		echo "$APP_LABEL"
+		exit 0
+		;;
+	-V)
+		echo "$APP_VERSION"
+		exit 0
+		;;
+	*)
+		file_list=( "${file_list[@]}" "$1" )
+		;;
+	esac
+	shift
+done
+
+let "list_length = ${#file_list[@]} - 1"
+
+for i in $(seq 0 $list_length); do
+	source_file="${file_list[i]}"
+	backup_file="${file_list[i]}${extension}"
+	if [[ -e "$source_file" ]]; then
+		if [[ -f "$source_file" ]]; then
+			if [[ $dry_run = 0 ]]; then
+				echo "cp $(echo ${source_file}{,$extension}) (dry run)"
+			else
+				if [[ ! -e "${backup_file}" ]] || [[ $force_backup = 0 ]]; then
+					# echo "${backup_file} does not exist yet"
+					echo "cp $(echo ${source_file}{,$extension})"
+					backup_file "$source_file" "$extension"
+				elif [[ $overwrite_newer = 0 ]]; then
+					if [[ "$source_file" -nt "${backup_file}" ]]; then
+						echo "  '$source_file' is newer than '${backup_file}'. Overwriting backup file."
+						backup_file "$source_file" "$extension"
+					fi
+				else
+					std_err "  ${backup_file} already exists."
+					std_err "  Please add -f or --force to force an overwrite of the backup."
+					std_err "  Or use -n or --newer to overwrite the backup if the source is newer."
+				fi
+			fi
+		else
+			std_err "$source_file not a normal file"
+			exit 3
+		fi
+	else
+		std_err "$source_file does not exist"
+		exit 2
+	fi
+done
