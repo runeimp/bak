@@ -35,17 +35,46 @@ Options
 -V                              Output the version number only of the app.
 ```
 
+Config
+------
+
+You can now set default values for certain `bak` variables to customize your setup. These are the current defaults.
+
+```
+default_label='.bak'
+dry_run=1
+extension_append=0
+force_backup=1
+overwrite_newer=1
+```
+
+0
+: Is `true` or `on` in shell scripting
+
+1
+: Is `false` or `off` in shell scripting
+
+Thus by default the label used is '.bak' (sans quotes) and append the label to the end of the file (it's extension generaly). Dry runs, force overwrite of backups, and overwrite backups if source is newer are off by default. To change the default label to `~tmp` (sans quotes) to overwrite backups if the source is newer you would create a file `~/.config/bak.cfg` which is a file `bak.cfg` within the directory/folder `.config` within your home directory and set the values:
+
+```
+default_label='~tmp'
+dry_run=1
+extension_append=0
+force_backup=1
+overwrite_newer=0
+```
+
 Usage
 -----
 
 ``` text
 # Output app and version number
 $ bak --version
-Bak v0.2.1
+Bak v0.3.0
 
 # Output app version number
 $ bak -V
-0.2.1
+0.3.0
 
 # Dry run backup. Do nothing, just pretend.
 $ echo 'version 1' > filename.ext
@@ -93,8 +122,8 @@ cp filename2.ext filename2.ext.bak
 cp filename3.ext filename3.ext.bak
 
 # Versioned backups
-$ bak bak -e _v0.2.1
-cp bak bak_v0.2.1
+$ bak bak -e _v0.3.0
+cp bak bak_v0.3.0
 
 # Backup with custom label appended to the basename instead of the end
 # of the file name

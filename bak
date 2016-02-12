@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ###################
-# bak v0.2.1
+# bak v0.3.0
 #
 # @author RuneImp <runeimp@gmail.com>
 # @licenses http://opensource.org/licenses/MIT
@@ -8,7 +8,8 @@
 ###
 # ChangeLog:
 # ----------
-# 2016-02-05  0.2.1      Fixed missing extension value.
+# 2016-02-05  0.3.0      Now sources ~/.config/bak.cfg if present.
+# 2016-02-05  0.2.1      Fixed missing label value.
 # 2016-02-04  0.2.0      Added basename append option and set it as default.
 # 2016-02-04  0.1.0      Initial script creation
 #
@@ -22,26 +23,30 @@
 #
 APP_CLI="bak"
 APP_NAME="Bak"
-APP_VERSION="0.2.1"
+APP_VERSION="0.3.0"
 APP_LABEL="$APP_NAME v$APP_VERSION"
-DEFAULT_EXTENSION='.bak'
 
 #
 # String Vars
 #
 backup_file=''
-extension="$DEFAULT_EXTENSION"
+default_label='.bak'
+label="$default_label"
 source_file=''
 
 #
 # Declared Vars
 #
 declare -a file_list
-declare -i extension_append=1
+declare -i extension_append=0
 declare -i dry_run=1
 declare -i force_backup=1
 declare -i list_length=0
 declare -i overwrite_newer=1
+
+if [[ -f ~/.config/bak.cfg ]]; then
+	source ~/.config/bak.cfg
+fi
 
 #
 # Functions
@@ -56,9 +61,9 @@ backup_name()
 	local file="$1"
 	local file_name="$1"
 	local file_ext=''
-	local extension="$DEFAULT_EXTENSION"
+	local label="$default_label"
 	if [[ ! -z "$2" ]]; then
-		extension="$2"
+		label="$2"
 	fi
 
 	if [[ "$file" =~ \. ]]; then
@@ -69,12 +74,12 @@ backup_name()
 	# std_err "file: $file"
 	# std_err "file_name: $file_name"
 	# std_err "file_ext: $file_ext"
-	# std_err "extension: $extension"
+	# std_err "label: $label"
 
 	if [[ $extension_append = 0 ]]; then
-		printf "${file_name}${file_ext}${extension}"
+		printf "${file_name}${file_ext}${label}"
 	else
-		printf "${file_name}${extension}${file_ext}"
+		printf "${file_name}${label}${file_ext}"
 	fi
 }
 
@@ -98,8 +103,8 @@ until [[ $# = 0 ]]; do
 		fi
 		shift
 		;;
-	-e | --extension)
-		extension="$2"
+	-e | --extension | --label)
+		label="$2"
 		shift
 		;;
 	-f | --force)
@@ -128,19 +133,19 @@ let "list_length = ${#file_list[@]} - 1"
 
 for i in $(seq 0 $list_length); do
 	source_file="${file_list[i]}"
-	backup_file="${file_list[i]}${extension}"
+	backup_file="${file_list[i]}${label}"
 	if [[ -e "$source_file" ]]; then
 		if [[ -f "$source_file" ]]; then
 			if [[ $dry_run = 0 ]]; then
-				echo "cp $(echo ${source_file}{,$extension}) (dry run)"
+				echo "cp $(echo ${source_file}{,$label}) (dry run)"
 			else
 				if [[ ! -e "${backup_file}" ]] || [[ $force_backup = 0 ]]; then
-					echo "cp $source_file $(backup_name $source_file $extension)"
-					backup_file "$source_file" "$extension"
+					echo "cp $source_file $(backup_name $source_file $label)"
+					backup_file "$source_file" "$label"
 				elif [[ $overwrite_newer = 0 ]]; then
 					if [[ "$source_file" -nt "${backup_file}" ]]; then
 						echo "  '$source_file' is newer than '${backup_file}'. Overwriting backup file."
-						backup_file "$source_file" "$extension"
+						backup_file "$source_file" "$label"
 					fi
 				else
 					std_err "  ${backup_file} already exists."
