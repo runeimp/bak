@@ -41,11 +41,11 @@ Usage
 ``` text
 # Output app and version number
 $ bak --version
-Bak v0.2.0
+Bak v0.2.1
 
 # Output app version number
 $ bak -V
-0.2.0
+0.2.1
 
 # Dry run backup. Do nothing, just pretend.
 $ echo 'version 1' > filename.ext
@@ -93,8 +93,8 @@ cp filename2.ext filename2.ext.bak
 cp filename3.ext filename3.ext.bak
 
 # Versioned backups
-$ bak bak -e _v0.2.0
-cp bak bak_v0.2.0
+$ bak bak -e _v0.2.1
+cp bak bak_v0.2.1
 
 # Backup with custom label appended to the basename instead of the end
 # of the file name

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ###################
-# bak v0.2.0
+# bak v0.2.1
 #
 # @author RuneImp <runeimp@gmail.com>
 # @licenses http://opensource.org/licenses/MIT
@@ -8,6 +8,7 @@
 ###
 # ChangeLog:
 # ----------
+# 2016-02-05  0.2.1      Fixed missing extension value.
 # 2016-02-04  0.2.0      Added basename append option and set it as default.
 # 2016-02-04  0.1.0      Initial script creation
 #
@@ -21,7 +22,7 @@
 #
 APP_CLI="bak"
 APP_NAME="Bak"
-APP_VERSION="0.2.0"
+APP_VERSION="0.2.1"
 APP_LABEL="$APP_NAME v$APP_VERSION"
 DEFAULT_EXTENSION='.bak'
 
@@ -29,7 +30,7 @@ DEFAULT_EXTENSION='.bak'
 # String Vars
 #
 backup_file=''
-extension=''
+extension="$DEFAULT_EXTENSION"
 source_file=''
 
 #
@@ -112,11 +113,9 @@ until [[ $# = 0 ]]; do
 		;;
 	-v | --version)
 		echo "$APP_LABEL"
-		exit 0
 		;;
 	-V)
 		echo "$APP_VERSION"
-		exit 0
 		;;
 	*)
 		file_list=( "${file_list[@]}" "$1" )
