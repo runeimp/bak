@@ -24,7 +24,7 @@ Options
 
 ``` text
 -a | --append                   Choose to append the label to the 
--e LABEL | --extension LABEL    The defaul is '.bak' (sans quotes) but you can
+-e LABEL | --extension LABEL    The default is '.bak' (sans quotes) but you can
                                 specify whatever you like with this option.
 -f | --force                    Force the overwritting of preexisting files.
 -n | --newer                    Only overwrite files if the source file is newer
